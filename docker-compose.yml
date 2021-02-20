@@ -1,0 +1,17 @@
+version: "3"
+services:
+  main:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ".:/usr/src/app"
+    ports:
+      - "3000:3000"
+  db:
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - "db_volume:/data"
+volumes:
+  db_volume:
