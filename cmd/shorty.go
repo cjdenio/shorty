@@ -1,11 +1,13 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/cjdenio/shorty/pkg/config"
 	"github.com/cjdenio/shorty/pkg/db"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 )
 
 func main() {
@@ -23,7 +25,10 @@ func main() {
 
 	r.GET("/:name", func(c *gin.Context) {
 		url, err := db.GetLink(c.Param("name"))
-		if err != nil {
+		if err != nil && err != redis.Nil {
+			log.Println(err)
+			c.String(http.StatusInternalServerError, "500 internal server error")
+		} else if err != nil {
 			c.String(http.StatusNotFound, "404 page not found")
 			return
 		}
