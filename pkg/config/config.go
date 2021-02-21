@@ -1,9 +1,6 @@
 package config
 
-import (
-	_ "embed"
-	"encoding/json"
-)
+import "os"
 
 // ConfigType represents Shorty's config
 type ConfigType struct {
@@ -14,9 +11,7 @@ type ConfigType struct {
 
 var Config ConfigType
 
-//go:embed config.json
-var rawConfig []byte
-
 func init() {
-	json.Unmarshal(rawConfig, &Config)
+	Config.DbUrl = os.Getenv("DB_URL")
+	Config.RootUrl = os.Getenv("ROOT_URL")
 }

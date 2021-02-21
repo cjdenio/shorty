@@ -8,6 +8,9 @@ services:
       - ".:/usr/src/app"
     ports:
       - "3000:3000"
+    env_file: .env
+    environment:
+      DB_URL: redis://db:6379
   db:
     image: redis:alpine
     command: redis-server --appendonly yes
