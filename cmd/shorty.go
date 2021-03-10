@@ -6,6 +6,7 @@ import (
 
 	"github.com/cjdenio/shorty/pkg/config"
 	"github.com/cjdenio/shorty/pkg/db"
+	"github.com/cjdenio/shorty/pkg/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 )
@@ -34,6 +35,24 @@ func main() {
 		}
 		c.Redirect(http.StatusTemporaryRedirect, url)
 	})
+
+	admin := r.Group("/admin", middleware.AuthRequired)
+	{
+		admin.POST("/item", func(c *gin.Context) {
+			var data struct {
+				Name string `json:"name"`
+				URL  string `json:"url"`
+			}
+
+			c.BindJSON(&data)
+
+			if err := db.AddLink(data.Name, data.URL); err != nil {
+				c.AbortWithError(500, err)
+			}
+
+			c.String(http.StatusOK, "Success!")
+		})
+	}
 
 	r.Run(":3000")
 }
