@@ -1,0 +1,13 @@
+[package]
+authors = ["Caleb Denio <cjdenio44@gmail.com>"]
+edition = "2018"
+name = "shorty"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+redis = "0.20.0"
+rocket = "0.4.7"
+serde = {version = "1.0", features = ["derive"]}
+serde_json = "1.0"

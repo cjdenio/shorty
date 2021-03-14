@@ -1,13 +1,19 @@
-FROM golang:1.16-alpine
+# Download reflex
+FROM golang:1.15
+
+RUN go get github.com/cespare/reflex
+
+FROM rust:1.50
+
+COPY --from=0 /go/bin/reflex /bin/reflex
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN go get ./...
+RUN rustup toolchain install nightly && \
+    rustup default nightly
 
-RUN go get -u github.com/cespare/reflex
+RUN cargo fetch
 
-EXPOSE 3000
-
-CMD ["reflex", "-s", "--", "go", "run", "./cmd"]
+CMD ["reflex", "-r", ".rs$", "-R", "target/", "-s", "--", "cargo", "run"]
