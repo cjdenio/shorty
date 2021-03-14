@@ -1,15 +1,16 @@
-FROM golang:1.16-alpine
+FROM rust:1.50
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN go get ./...
+RUN rustup toolchain install nightly && \
+    rustup default nightly
 
-RUN go build -o ./dist/app ./cmd
+RUN cargo build --release
 
-FROM alpine:latest
+FROM debian:buster
 
-COPY --from=0 /usr/src/app/dist/app /usr/bin/app
+COPY --from=0 /usr/src/app/target/release/shorty /usr/bin/app
 
 CMD ["app"]

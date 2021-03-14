@@ -18,10 +18,13 @@ struct ShortyState {
 
 #[get("/<name>")]
 fn link(state: State<ShortyState>, name: String) -> Option<Redirect> {
-    match state.db.write().unwrap().get_link(&name) {
-        Ok(link) => Some(Redirect::temporary(link.url)),
-        Err(_) => None,
-    }
+    state
+        .db
+        .write()
+        .unwrap()
+        .get_link(&name)
+        .map(|x| Redirect::temporary(x.url))
+        .ok()
 }
 
 #[get("/")]
