@@ -1,5 +1,3 @@
-dist/
-pkg/config/config.json
 *.env
 
 # Added by cargo
