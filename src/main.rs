@@ -1,8 +1,11 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 // 🏡 Local module imports
-pub mod db;
-use db::{ShortyDb, ShortyLink};
+mod attribution;
+mod db;
+
+use attribution::Attribution;
+use db::ShortyDb;
 
 // 👽 External create imports
 #[macro_use]
@@ -29,10 +32,7 @@ fn link(state: State<ShortyState>, name: String) -> Option<Redirect> {
 
 #[get("/")]
 fn index() -> Option<Redirect> {
-    match env::var("ROOT_URL") {
-        Ok(url) => Some(Redirect::to(url)),
-        Err(_) => None,
-    }
+    env::var("ROOT_URL").map(|x| Redirect::temporary(x)).ok()
 }
 
 #[catch(404)]
@@ -51,5 +51,6 @@ fn main() {
         .manage(ShortyState {
             db: RwLock::new(db),
         })
+        .attach(Attribution)
         .launch();
 }
