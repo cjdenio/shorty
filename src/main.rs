@@ -28,19 +28,7 @@ fn link(state: State<ShortyState>, name: String) -> Option<Redirect> {
 }
 
 #[get("/")]
-fn index(state: State<ShortyState>) -> Option<Redirect> {
-    state
-        .db
-        .write()
-        .unwrap()
-        .add_link(
-            &String::from("gh"),
-            &ShortyLink {
-                url: String::from("https://github.com/cjdenio"),
-            },
-        )
-        .expect("couldn't create link");
-
+fn index() -> Option<Redirect> {
     match env::var("ROOT_URL") {
         Ok(url) => Some(Redirect::to(url)),
         Err(_) => None,
