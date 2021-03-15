@@ -28,7 +28,10 @@ Pass `POST` options as form parameters; e.g. `curl http://localhost:3000/api/lin
 
 ### `POST /api/link/<name>` - create or update a named link
 Options:
-- `url` - the url the redirect to
+- `url` - the url the redirect to.
+
+Note:
+    **`root` is a special value for `<name>` that creates a redirect for the root URL.**
 
 ### `DELETE /api/link/<name>` - delete a named link
 example: `curl -X DELETE http://localhost:3000/api/link/gh`

@@ -33,8 +33,14 @@ fn link(state: State<ShortyState>, name: String) -> Option<Redirect> {
 }
 
 #[get("/")]
-fn index() -> Option<Redirect> {
-    env::var("ROOT_URL").map(|x| Redirect::temporary(x)).ok()
+fn index(state: State<ShortyState>) -> Option<Redirect> {
+    state
+        .db
+        .write()
+        .unwrap()
+        .get_link(&String::from("root"))
+        .map(|x| Redirect::temporary(x.url))
+        .ok()
 }
 
 #[catch(404)]
