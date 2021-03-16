@@ -18,17 +18,17 @@ In addition to being easy to build from source, shorty is available as a Docker 
 
 ### ⚙️ Server configuration
 
-Configure the server through environment variables or `Rocket.toml`; check [this guide](https://rocket.rs/v0.4/guide/configuration/) for more information. shorty runs on port `3000` by default.
+Configure the server through environment variables or `Rocket.toml`; check [this guide](https://rocket.rs/v0.4/guide/configuration/) for more information. shorty runs on port `8000` by default.
 
 ## 📡 API
 
 Use shorty's API to add/remove links.
 
-Pass `POST` options as form parameters; e.g. `curl http://localhost:3000/api/link/gh -d "url=https://github.com/cjdenio&param=value"`
+Pass `POST` options as form parameters; e.g. `curl http://localhost:8000/api/link/gh -d "url=https://github.com/cjdenio&param=value"`
 
 ### Authentication
 
-Provide your `TOKEN` (described above) as a bearer token, so set the `Authorization` header to `Bearer <token>`. Example: `curl -H "Authorization: Bearer token1234" http://localhost:3000/api/cool`
+Provide your `TOKEN` (described above) as a bearer token, so set the `Authorization` header to `Bearer <token>`. Example: `curl -H "Authorization: Bearer token1234" http://localhost:8000/api/cool`
 
 ### `POST /api/link/<name>` - create or update a named link
 Options:
@@ -38,4 +38,10 @@ Note:
     **`root` is a special value for `<name>` that creates a redirect for the root URL.**
 
 ### `DELETE /api/link/<name>` - delete a named link
-example: `curl -X DELETE http://localhost:3000/api/link/gh`
+example: `curl -X DELETE http://localhost:8000/api/link/gh`
+
+## 🚗 Roadmap
+
+- UI
+- Random link generation
+- Redirect code configuration
