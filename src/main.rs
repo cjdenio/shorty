@@ -34,13 +34,16 @@ fn link(state: State<ShortyState>, name: String) -> Option<Redirect> {
 
 #[get("/")]
 fn index(state: State<ShortyState>) -> Option<Redirect> {
-    state
-        .db
-        .write()
-        .unwrap()
-        .get_link(&String::from("root"))
-        .map(|x| Redirect::temporary(x.url))
-        .ok()
+    let mut db = state.db.write().unwrap();
+
+    match db.get_link(&String::from("/")) {
+        Ok(link) => Some(Redirect::temporary(link.url)),
+        // fall back to `root`
+        Err(_) => match db.get_link(&String::from("root")) {
+            Ok(link) => Some(Redirect::temporary(link.url)),
+            Err(_) => None,
+        },
+    }
 }
 
 #[catch(404)]
