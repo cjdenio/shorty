@@ -7,7 +7,7 @@ services:
     volumes:
       - ".:/usr/src/app"
     ports:
-      - "3000:8000"
+      - "8000:8000"
     env_file: .env
     environment:
       DB_URL: redis://db:6379

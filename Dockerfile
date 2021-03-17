@@ -11,6 +11,9 @@ RUN cargo build --release
 
 FROM debian:buster
 
-COPY --from=0 /usr/src/app/target/release/shorty /usr/bin/app
+WORKDIR /usr/src/app
 
-CMD ["app"]
+COPY --from=0 /usr/src/app/target/release/shorty ./app
+COPY --from=0 /usr/src/app/Rocket.toml ./Rocket.toml
+
+CMD ["./app"]

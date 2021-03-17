@@ -7,6 +7,7 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+nanoid = "0.3.0"
 redis = "0.20.0"
 rocket = "0.4.7"
 rocket_contrib = "0.4.7"

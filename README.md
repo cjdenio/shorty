@@ -14,7 +14,7 @@ In addition to being easy to build from source, shorty is available as a Docker 
 ### 🌎 Environment variables
 
 - `DB_URL` - a valid Redis URL, e.g. redis://localhost:1234
-- `TOKEN` - your desired API token; only required if you're using the API (described below). 
+- `TOKEN` - your desired API token; only required if you're using the API (described below).
 
 ### ⚙️ Server configuration
 
@@ -24,21 +24,55 @@ Configure the server through environment variables or `Rocket.toml`; check [this
 
 Use shorty's API to add/remove links.
 
-Pass `POST` options as form parameters; e.g. `curl http://localhost:8000/api/link/gh -d "url=https://github.com/cjdenio&param=value"`
-
 ### Authentication
 
 Provide your `TOKEN` (described above) as a bearer token, so set the `Authorization` header to `Bearer <token>`. Example: `curl -H "Authorization: Bearer token1234" http://localhost:8000/api/cool`
 
-### `POST /api/link/<name>` - create or update a named link
+### Requests
+
+`POST` requests must all contain JSON payloads. `x-www-form-urlencoded` is _not_ supported.
+
+### Responses
+
+All responses are JSON, and follow this rough schema:
+
+```json
+{
+  // False if something went wrong
+  "ok": true,
+
+  // Will be a string if something went wrong
+  "err": null,
+
+  "data": {
+    // Response data here...
+  }
+}
+```
+
+---
+
+### ➕ `POST /api/link` - create or update a named link
+
 Options:
-- `url` - the url the redirect to.
 
-Note:
-    **`root` is a special value for `<name>` that creates a redirect for the root URL.**
+- `url` (string, **required**) - The URL the redirect to.
+- `name` (string, optional) - The link's name. Leave blank to randomly generate a 10-character ID.
+- `public` (bool, optional) - Whether or not to display this link on the public links page; **coming soon**
 
-### `DELETE /api/link/<name>` - delete a named link
+ℹ️ Note:
+**`/` is a special value for `<name>` that creates a redirect for the root URL.**
+
+---
+
+### ❌ `DELETE /api/link/<name>` - delete a named link
+
 example: `curl -X DELETE http://localhost:8000/api/link/gh`
+
+ℹ️ Note:
+**Please URL encode the `<name>` parameter if necessary; `/` will become `%2F`**
+
+---
 
 ## 🚗 Roadmap
 
