@@ -60,7 +60,7 @@ pub fn add_item(
                 &link.name,
                 &ShortyLink {
                     url: link.url.clone(),
-                    public: link.public,
+                    public: Some(link.public),
                 },
             )
             .map(|_| {

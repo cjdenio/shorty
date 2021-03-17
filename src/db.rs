@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, FromForm)]
 pub struct ShortyLink {
     pub url: String,
-    pub public: bool,
+    pub public: Option<bool>,
 }
 
 impl Default for ShortyLink {
     fn default() -> Self {
         Self {
             url: String::from(""),
-            public: false,
+            public: Some(false),
         }
     }
 }
