@@ -26,7 +26,7 @@ Use shorty's API to add/remove links.
 
 ### Authentication
 
-Provide your `TOKEN` (described above) as a bearer token, so set the `Authorization` header to `Bearer <token>`. Example: `curl -H "Authorization: Bearer token1234" http://localhost:8000/api/cool`
+Provide your `TOKEN` (described above) as a bearer token, so set the `Authorization` header to `Bearer <token>`. Example: `curl -H "Authorization: Bearer token1234" http://localhost:8000/api/example/route`
 
 ### Requests
 
@@ -36,7 +36,7 @@ Provide your `TOKEN` (described above) as a bearer token, so set the `Authorizat
 
 All responses are JSON, and follow this rough schema:
 
-```json
+```jsonc
 {
   // False if something went wrong
   "ok": true,
@@ -77,5 +77,4 @@ example: `curl -X DELETE http://localhost:8000/api/link/gh`
 ## 🚗 Roadmap
 
 - UI
-- Random link generation
 - Redirect code configuration
