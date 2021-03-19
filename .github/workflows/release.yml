@@ -1,0 +1,24 @@
+on:
+  push:
+    branches:
+      - master
+
+name: Release
+jobs:
+  docker_hub:
+    name: Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u cjdenio --password-stdin
+      - run: docker build -t cjdenio/shorty .
+      - run: docker push cjdenio/shorty
+  ghcr:
+    name: GitHub Container Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u cjdenio --password-stdin
+      - run: docker build -t ghcr.io/cjdenio/shorty .
+      - run: docker push ghcr.io/cjdenio/shorty
+      - run: docker run caprover/cli-caprover:v2.1.1 caprover deploy --caproverUrl https://host.calebdenio.me --caproverPassword ${{ secrets.CAPROVER_PASSWORD }} --caproverApp shorty --imageName ghcr.io/cjdenio/shorty
