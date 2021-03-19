@@ -1,4 +1,8 @@
-on: push
+on:
+  push:
+    branches:
+      - master
+
 name: Release
 jobs:
   docker_hub:
@@ -17,3 +21,4 @@ jobs:
       - run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u cjdenio --password-stdin
       - run: docker build -t ghcr.io/cjdenio/shorty .
       - run: docker push ghcr.io/cjdenio/shorty
+      - run: docker run caprover/cli-caprover:v2.1.1 caprover deploy --caproverUrl https://host.calebdenio.me --caproverPassword ${{ secrets.CAPROVER_PASSWORD }} --caproverApp shorty --imageName ghcr.io/cjdenio/shorty
