@@ -1,0 +1,19 @@
+on: push
+name: Release
+jobs:
+  docker_hub:
+    name: Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u cjdenio --password-stdin
+      - run: docker build -t cjdenio/shorty .
+      - run: docker push cjdenio/shorty
+  ghcr:
+    name: GitHub Container Registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.CR_PAT }} | docker ghcr.io login -u cjdenio --password-stdin
+      - run: docker build -t ghcr.io/cjdenio/shorty .
+      - run: docker push ghcr.io/cjdenio/shorty
