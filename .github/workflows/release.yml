@@ -14,6 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: echo ${{ secrets.CR_PAT }} | docker ghcr.io login -u cjdenio --password-stdin
+      - run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u cjdenio --password-stdin
       - run: docker build -t ghcr.io/cjdenio/shorty .
       - run: docker push ghcr.io/cjdenio/shorty
