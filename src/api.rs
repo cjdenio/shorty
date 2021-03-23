@@ -3,6 +3,8 @@ use rocket::{delete, post, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
+use std::collections::HashMap;
+
 use crate::auth::ShortyToken;
 use crate::db::ShortyLink;
 use crate::ShortyState;
@@ -35,6 +37,16 @@ fn random_name() -> String {
     nanoid!(10)
 }
 
+#[get("/api/link")]
+pub fn get_links(
+    state: State<ShortyState>,
+    _token: ShortyToken,
+) -> Json<ApiResult<HashMap<String, ShortyLink>>> {
+    Json(ApiResult::from_result(
+        state.db.write().unwrap().get_links(false).map(|x| Some(x)),
+    ))
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct AddLinkParams {
     #[serde(default = "random_name")]
@@ -46,7 +58,7 @@ pub struct AddLinkParams {
 }
 
 #[post("/api/link", data = "<link>")]
-pub fn add_item(
+pub fn add_link(
     state: State<ShortyState>,
     _token: ShortyToken,
     link: Json<AddLinkParams>,
@@ -74,7 +86,7 @@ pub fn add_item(
 }
 
 #[delete("/api/link/<name>")]
-pub fn delete_item(
+pub fn delete_link(
     state: State<ShortyState>,
     _token: ShortyToken,
     name: String,

@@ -11,6 +11,7 @@ impl Fairing for Attribution {
             kind: Kind::Response,
         }
     }
+
     fn on_response(&self, _: &Request, response: &mut Response) {
         response.set_header(Header::new(
             "X-Powered-By",

@@ -52,6 +52,12 @@ All responses are JSON, and follow this rough schema:
 
 ---
 
+### 📋 `GET /api/link` - list all links
+
+This method has no options.
+
+---
+
 ### ➕ `POST /api/link` - create or update a named link
 
 Options:

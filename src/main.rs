@@ -60,7 +60,10 @@ fn main() {
     let db = ShortyDb::new(redis_client);
 
     rocket::ignite()
-        .mount("/", routes![index, link, api::add_item, api::delete_item])
+        .mount(
+            "/",
+            routes![index, link, api::add_link, api::delete_link, api::get_links],
+        )
         .register(catchers![not_found])
         .manage(ShortyState {
             db: RwLock::new(db),

@@ -1,10 +1,14 @@
+use std::collections::HashMap;
+
 use redis::{Commands, RedisError};
-use rocket::request::{FormItem, FormItems, FromForm};
+use rocket::request::FromForm;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, FromForm)]
 pub struct ShortyLink {
     pub url: String,
+
+    // This is an Option<T> because I'm an idiot and some installations have this field set to `null`
     pub public: Option<bool>,
 }
 
@@ -54,5 +58,30 @@ impl ShortyDb {
         };
 
         Ok(link)
+    }
+
+    pub fn get_links(&mut self, only_public: bool) -> Result<HashMap<String, ShortyLink>, String> {
+        let keys = self
+            .conn
+            .scan::<String>()
+            .map_err(|x| x.to_string())?
+            .collect::<Vec<String>>();
+
+        let mut links: HashMap<String, ShortyLink> = HashMap::new();
+
+        for i in keys {
+            let link_name = match i.strip_prefix("link:") {
+                Some(x) => x,
+                None => continue,
+            };
+
+            let link = self.get_link(&link_name.to_string())?;
+
+            if !only_public || link.public.unwrap_or(false) {
+                links.insert(link_name.to_string(), link);
+            }
+        }
+
+        Ok(links)
     }
 }
