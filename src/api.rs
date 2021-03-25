@@ -1,4 +1,4 @@
-use diesel::RunQueryDsl;
+use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 use nanoid::nanoid;
 use rocket_contrib::json::Json;
 
@@ -75,6 +75,11 @@ pub fn add_link(_token: ShortyToken, link: Json<AddLinkParams>) -> Json<ApiResul
 }
 
 #[delete("/api/link/<name>")]
-pub fn delete_link(_token: ShortyToken, name: String) -> Json<ApiResult<()>> {
-    Json(ApiResult::<()>::success())
+pub fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiResult<()>> {
+    Json(ApiResult::from_result(
+        diesel::delete(links::table.filter(links::name.eq(name)))
+            .execute(&*conn)
+            .map(|_| Some(()))
+            .map_err(|x| x.to_string()),
+    ))
 }
