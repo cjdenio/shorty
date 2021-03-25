@@ -13,7 +13,7 @@ FROM debian:buster
 
 WORKDIR /usr/src/app
 
-RUN apt-get install libpq5
+RUN apt-get update -y && apt-get install -y libpq5
 
 COPY --from=0 /usr/src/app/target/release/shorty ./app
 
