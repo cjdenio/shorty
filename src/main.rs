@@ -52,7 +52,7 @@ fn link(conn: DbConn, name: String) -> Option<Redirect> {
 #[get("/")]
 fn index(conn: DbConn) -> Option<Redirect> {
     links::table
-        .filter(links::name.eq("/"))
+        .filter(links::name.eq_any(vec!["/", "root"]))
         .first::<Link>(&*conn)
         .map(|x| Redirect::temporary(x.url))
         .ok()
