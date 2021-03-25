@@ -1,6 +1,10 @@
 # shorty
 
-> High-performance link shortener written in Rust
+🔗 High-performance link shortener written in Rust
+
+> ### ⚠️ WARNING ⚠️
+>
+> Redis-backed installations _are not longer supported_. To switch to Postgres, please see the [migration guide](MIGRATION.md).
 
 ## 💾 Hosting
 
@@ -8,21 +12,18 @@ In addition to being easy to build from source, shorty is available as a Docker 
 
 ### 🏁 Prerequisites
 
-- Some sort of Docker or Rust-compatible hosting; [clb.li](https://clb.li) runs on [CapRover](https://caprover.com)
-- A persistent Redis database
+- Some sort of Docker or Rust-compatible hosting. [clb.li](https://clb.li) runs on [CapRover](https://caprover.com), for example, but [Heroku](https://heroku.com) is a good free option.
+- A Postgres database (Heroku Postgres is your friend if your running on Heroku)
 
 ### 🌎 Environment variables
 
-- `DB_URL` - a valid Redis URL, e.g. redis://localhost:1234
+- `DATABASE_URL` - a valid Postgres URL, e.g. postgres://user:password@localhost:5432/database _(automatically set when using Heroku Postgres)_
 - `TOKEN` - your desired API token; only required if you're using the API (described below).
-
-### ⚙️ Server configuration
-
-Configure the server through environment variables or `Rocket.toml`; check [this guide](https://rocket.rs/v0.4/guide/configuration/) for more information. shorty runs on port `8000` by default.
+- `PORT` - Change the port the server listens on; defaults to `8000`
 
 ## 📡 API
 
-Use shorty's API to add/remove links.
+You can use shorty's API to add/remove links. No UI is available quite yet, but soon!
 
 ### Authentication
 

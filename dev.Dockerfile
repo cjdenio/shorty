@@ -16,4 +16,4 @@ RUN rustup toolchain install nightly && \
 
 RUN cargo fetch
 
-CMD ["reflex", "-r", ".rs$", "-R", "target/", "-s", "--", "cargo", "run"]
+CMD ["reflex", "-r", ".(rs|toml)$", "-R", "target/", "-s", "--", "cargo", "run"]

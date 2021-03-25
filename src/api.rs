@@ -1,23 +1,43 @@
-use nanoid::nanoid;
-use rocket::{delete, post, State};
+use std::env;
+
+use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 use rocket_contrib::json::Json;
-use serde::{Deserialize, Serialize};
 
-use std::collections::HashMap;
+use serde::Serialize;
 
-use crate::auth::ShortyToken;
-use crate::db::ShortyLink;
-use crate::ShortyState;
+use crate::{
+    auth::ShortyToken,
+    models::{Link, NewLink},
+    DbConn,
+};
+
+use crate::schema::*;
 
 #[derive(Serialize)]
 pub struct ApiResult<T: Serialize> {
-    ok: bool,
-    err: Option<String>,
-    data: Option<T>,
+    pub ok: bool,
+    pub err: Option<String>,
+    pub data: Option<T>,
 }
 
 impl<T: Serialize> ApiResult<T> {
-    fn from_result<E: ToString>(result: Result<Option<T>, E>) -> ApiResult<T> {
+    pub fn success() -> ApiResult<()> {
+        ApiResult {
+            ok: true,
+            err: None,
+            data: None,
+        }
+    }
+
+    pub fn error<E: ToString>(err: E) -> ApiResult<()> {
+        ApiResult {
+            ok: false,
+            err: Some(err.to_string()),
+            data: None,
+        }
+    }
+
+    pub fn from_result<E: ToString>(result: Result<Option<T>, E>) -> ApiResult<T> {
         match result {
             Ok(r) => ApiResult {
                 ok: true,
@@ -33,65 +53,28 @@ impl<T: Serialize> ApiResult<T> {
     }
 }
 
-fn random_name() -> String {
-    nanoid!(10)
-}
-
 #[get("/api/link")]
-pub fn get_links(
-    state: State<ShortyState>,
-    _token: ShortyToken,
-) -> Json<ApiResult<HashMap<String, ShortyLink>>> {
+pub fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>> {
     Json(ApiResult::from_result(
-        state.db.write().unwrap().get_links(false).map(|x| Some(x)),
+        links::table.load::<Link>(&*conn).map(|x| Some(x)),
     ))
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct AddLinkParams {
-    #[serde(default = "random_name")]
-    name: String,
-    url: String,
-
-    #[serde(default)]
-    public: bool,
 }
 
 #[post("/api/link", data = "<link>")]
-pub fn add_link(
-    state: State<ShortyState>,
-    _token: ShortyToken,
-    link: Json<AddLinkParams>,
-) -> Json<ApiResult<AddLinkParams>> {
-    Json(ApiResult::from_result(
-        state
-            .db
-            .write()
-            .unwrap()
-            .add_link(
-                &link.name,
-                &ShortyLink {
-                    url: link.url.clone(),
-                    public: Some(link.public),
-                },
-            )
-            .map(|_| {
-                Some(AddLinkParams {
-                    url: link.url.clone(),
-                    name: link.name.clone(),
-                    public: link.public,
-                })
-            }),
-    ))
+pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<ApiResult<Link>> {
+    let result = diesel::insert_into(links::table)
+        .values(&link.0)
+        .get_result::<Link>(&*conn);
+
+    Json(ApiResult::from_result(result.map(|x| Some(x))))
 }
 
 #[delete("/api/link/<name>")]
-pub fn delete_link(
-    state: State<ShortyState>,
-    _token: ShortyToken,
-    name: String,
-) -> Json<ApiResult<()>> {
+pub fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiResult<()>> {
     Json(ApiResult::from_result(
-        state.db.write().unwrap().del_link(&name).map(|_| None),
+        diesel::delete(links::table.filter(links::name.eq(name)))
+            .execute(&*conn)
+            .map(|_| Some(()))
+            .map_err(|x| x.to_string()),
     ))
 }
