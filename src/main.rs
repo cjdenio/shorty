@@ -22,8 +22,14 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate diesel;
 
+#[macro_use]
+extern crate diesel_migrations;
+
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
-use rocket::response::Redirect;
+use rocket::Rocket;
+use rocket::{fairing::AdHoc, response::Redirect};
+
+embed_migrations!();
 
 #[database("db")]
 pub struct DbConn(PgConnection);
@@ -51,6 +57,15 @@ fn not_found() -> String {
     String::from("404 not found")
 }
 
+fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
+    let conn = DbConn::get_one(&rocket).expect("database connection");
+
+    match embedded_migrations::run(&*conn) {
+        Ok(_) => Ok(rocket),
+        Err(_) => Err(rocket),
+    }
+}
+
 fn main() -> Result<(), String> {
     rocket::ignite()
         .mount(
@@ -60,6 +75,7 @@ fn main() -> Result<(), String> {
         .register(catchers![not_found])
         .attach(Attribution)
         .attach(DbConn::fairing())
+        .attach(AdHoc::on_attach("Database migrations", run_db_migrations))
         .launch();
 
     Ok(())
