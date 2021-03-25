@@ -80,8 +80,8 @@ fn main() -> Result<(), String> {
         .expect("DATABASE_URL env var not set");
 
     let port: u16 = env::var("PORT")
-        .map_err(|_| ())
-        .and_then(|x| x.parse().map_err(|_| ()))
+        .ok()
+        .and_then(|x| x.parse().ok())
         .unwrap_or(8000);
 
     database_config.insert("url", Value::from(database_url));
