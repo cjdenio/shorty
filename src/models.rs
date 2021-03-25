@@ -14,7 +14,7 @@ fn random_name() -> String {
     nanoid!(10)
 }
 
-#[derive(Insertable, Deserialize)]
+#[derive(Insertable, Deserialize, Debug)]
 #[table_name = "links"]
 pub struct NewLink {
     #[serde(default = "random_name")]

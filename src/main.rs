@@ -4,6 +4,7 @@
 mod api;
 mod attribution;
 mod auth;
+mod migrate;
 
 mod models;
 mod schema;
@@ -97,7 +98,14 @@ fn main() -> Result<(), String> {
     rocket::custom(config)
         .mount(
             "/",
-            routes![index, link, api::add_link, api::delete_link, api::get_links],
+            routes![
+                index,
+                link,
+                api::add_link,
+                api::delete_link,
+                api::get_links,
+                migrate::migrate
+            ],
         )
         .register(catchers![not_found])
         .attach(Attribution)

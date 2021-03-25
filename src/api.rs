@@ -1,3 +1,5 @@
+use std::env;
+
 use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 use rocket_contrib::json::Json;
 
@@ -13,13 +15,13 @@ use crate::schema::*;
 
 #[derive(Serialize)]
 pub struct ApiResult<T: Serialize> {
-    ok: bool,
-    err: Option<String>,
-    data: Option<T>,
+    pub ok: bool,
+    pub err: Option<String>,
+    pub data: Option<T>,
 }
 
 impl<T: Serialize> ApiResult<T> {
-    fn success() -> ApiResult<()> {
+    pub fn success() -> ApiResult<()> {
         ApiResult {
             ok: true,
             err: None,
@@ -27,7 +29,7 @@ impl<T: Serialize> ApiResult<T> {
         }
     }
 
-    fn error<E: ToString>(err: E) -> ApiResult<()> {
+    pub fn error<E: ToString>(err: E) -> ApiResult<()> {
         ApiResult {
             ok: false,
             err: Some(err.to_string()),
@@ -35,7 +37,7 @@ impl<T: Serialize> ApiResult<T> {
         }
     }
 
-    fn from_result<E: ToString>(result: Result<Option<T>, E>) -> ApiResult<T> {
+    pub fn from_result<E: ToString>(result: Result<Option<T>, E>) -> ApiResult<T> {
         match result {
             Ok(r) => ApiResult {
                 ok: true,
