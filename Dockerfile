@@ -14,6 +14,5 @@ FROM debian:buster
 WORKDIR /usr/src/app
 
 COPY --from=0 /usr/src/app/target/release/shorty ./app
-COPY --from=0 /usr/src/app/Rocket.toml ./Rocket.toml
 
 CMD ["./app"]
