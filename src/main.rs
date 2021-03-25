@@ -4,46 +4,46 @@
 mod api;
 mod attribution;
 mod auth;
-mod db;
+
+mod models;
+mod schema;
 
 use attribution::Attribution;
-use db::ShortyDb;
+use models::Link;
+use schema::*;
 
 // 👽 External create imports
 #[macro_use]
 extern crate rocket;
 
-use redis::Client;
-use rocket::{response::Redirect, State};
-use std::{env, sync::RwLock};
+#[macro_use]
+extern crate rocket_contrib;
 
-pub struct ShortyState {
-    db: RwLock<ShortyDb>,
-}
+#[macro_use]
+extern crate diesel;
+
+use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
+use rocket::response::Redirect;
+
+#[database("db")]
+pub struct DbConn(PgConnection);
 
 #[get("/<name>")]
-fn link(state: State<ShortyState>, name: String) -> Option<Redirect> {
-    state
-        .db
-        .write()
-        .unwrap()
-        .get_link(&name)
+fn link(conn: DbConn, name: String) -> Option<Redirect> {
+    links::table
+        .filter(links::name.eq(name))
+        .first::<Link>(&*conn)
         .map(|x| Redirect::temporary(x.url))
         .ok()
 }
 
 #[get("/")]
-fn index(state: State<ShortyState>) -> Option<Redirect> {
-    let mut db = state.db.write().unwrap();
-
-    match db.get_link(&String::from("/")) {
-        Ok(link) => Some(Redirect::temporary(link.url)),
-        // fall back to `root`
-        Err(_) => match db.get_link(&String::from("root")) {
-            Ok(link) => Some(Redirect::temporary(link.url)),
-            Err(_) => None,
-        },
-    }
+fn index(conn: DbConn) -> Option<Redirect> {
+    links::table
+        .filter(links::name.eq("/"))
+        .first::<Link>(&*conn)
+        .map(|x| Redirect::temporary(x.url))
+        .ok()
 }
 
 #[catch(404)]
@@ -51,23 +51,16 @@ fn not_found() -> String {
     String::from("404 not found")
 }
 
-fn main() {
-    // Make sure certain environment variables are set
-    env::var("DB_URL").expect("DB_URL environment variable not set");
-
-    let redis_client = Client::open(env::var("DB_URL").expect("Missing DB_URL env variable."))
-        .expect("Error connecting to Redis");
-    let db = ShortyDb::new(redis_client);
-
+fn main() -> Result<(), String> {
     rocket::ignite()
         .mount(
             "/",
             routes![index, link, api::add_link, api::delete_link, api::get_links],
         )
         .register(catchers![not_found])
-        .manage(ShortyState {
-            db: RwLock::new(db),
-        })
         .attach(Attribution)
+        .attach(DbConn::fairing())
         .launch();
+
+    Ok(())
 }

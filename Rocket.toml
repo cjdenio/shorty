@@ -1,3 +1,6 @@
 [global]
 address = "0.0.0.0"
 port = 8000
+
+[global.databases]
+db = {url = "postgres://postgres:postgres@postgres:5432/postgres"}

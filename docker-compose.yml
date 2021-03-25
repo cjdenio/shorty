@@ -10,11 +10,25 @@ services:
       - "8000:8000"
     env_file: .env
     environment:
-      DB_URL: redis://db:6379
-  db:
-    image: redis:alpine
-    command: redis-server --appendonly yes
+      DB_URL: postgres://postgres:postgres@postgres:5432/postgres
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
     volumes:
-      - "db_volume:/data"
+      - postgres_volume:/var/lib/postgresql/data
+  pgweb:
+    image: sosedoff/pgweb
+    ports:
+      - "3002:8081"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+    depends_on:
+      - postgres
 volumes:
-  db_volume:
+  postgres_volume:
