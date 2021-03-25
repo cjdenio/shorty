@@ -10,7 +10,7 @@ services:
       - "8000:8000"
     env_file: .env
     environment:
-      DB_URL: postgres://postgres:postgres@postgres:5432/postgres
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
     depends_on:
       - postgres
   postgres:

@@ -8,6 +8,8 @@ mod auth;
 mod models;
 mod schema;
 
+use std::{collections::HashMap, env};
+
 use attribution::Attribution;
 use models::Link;
 use schema::*;
@@ -26,7 +28,10 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
-use rocket::Rocket;
+use rocket::{
+    config::{Environment, Value},
+    Config, Rocket,
+};
 use rocket::{fairing::AdHoc, response::Redirect};
 
 embed_migrations!();
@@ -67,7 +72,29 @@ fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
 }
 
 fn main() -> Result<(), String> {
-    rocket::ignite()
+    let mut database_config = HashMap::new();
+    let mut databases = HashMap::new();
+
+    let database_url = env::var("DATABASE_URL")
+        .or_else(|_| env::var("DB_URL"))
+        .expect("DATABASE_URL env var not set");
+
+    let port: u16 = env::var("PORT")
+        .map_err(|_| ())
+        .and_then(|x| x.parse().map_err(|_| ()))
+        .unwrap_or(8000);
+
+    database_config.insert("url", Value::from(database_url));
+    databases.insert("db", Value::from(database_config));
+
+    let config = Config::build(Environment::active().unwrap_or(Environment::Development))
+        .port(port)
+        .address("0.0.0.0")
+        .extra("databases", databases)
+        .finalize()
+        .unwrap();
+
+    rocket::custom(config)
         .mount(
             "/",
             routes![index, link, api::add_link, api::delete_link, api::get_links],
