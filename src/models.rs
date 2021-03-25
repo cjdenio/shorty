@@ -1,5 +1,6 @@
 use super::schema::links;
-use serde::Serialize;
+use nanoid::nanoid;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Debug, Serialize)]
 pub struct Link {
@@ -9,10 +10,17 @@ pub struct Link {
     pub public: bool,
 }
 
-#[derive(Insertable)]
+fn random_name() -> String {
+    nanoid!(10)
+}
+
+#[derive(Insertable, Deserialize)]
 #[table_name = "links"]
 pub struct NewLink {
+    #[serde(default = "random_name")]
     pub name: String,
     pub url: String,
+
+    #[serde(default)]
     pub public: bool,
 }

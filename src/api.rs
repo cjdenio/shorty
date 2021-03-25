@@ -1,10 +1,13 @@
 use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
-use nanoid::nanoid;
 use rocket_contrib::json::Json;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-use crate::{auth::ShortyToken, models::Link, DbConn};
+use crate::{
+    auth::ShortyToken,
+    models::{Link, NewLink},
+    DbConn,
+};
 
 use crate::schema::*;
 
@@ -48,10 +51,6 @@ impl<T: Serialize> ApiResult<T> {
     }
 }
 
-fn random_name() -> String {
-    nanoid!(10)
-}
-
 #[get("/api/link")]
 pub fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>> {
     Json(ApiResult::from_result(
@@ -59,19 +58,13 @@ pub fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>
     ))
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct AddLinkParams {
-    #[serde(default = "random_name")]
-    name: String,
-    url: String,
-
-    #[serde(default)]
-    public: bool,
-}
-
 #[post("/api/link", data = "<link>")]
-pub fn add_link(_token: ShortyToken, link: Json<AddLinkParams>) -> Json<ApiResult<()>> {
-    Json(ApiResult::<()>::success())
+pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<ApiResult<Link>> {
+    let result = diesel::insert_into(links::table)
+        .values(&link.0)
+        .get_result::<Link>(&*conn);
+
+    Json(ApiResult::from_result(result.map(|x| Some(x))))
 }
 
 #[delete("/api/link/<name>")]
