@@ -13,6 +13,7 @@ use std::{collections::HashMap, env};
 
 use attribution::Attribution;
 use models::Link;
+use rocket_contrib::templates::Template;
 use schema::*;
 
 // 👽 External create imports
@@ -34,6 +35,7 @@ use rocket::{
     Config, Rocket,
 };
 use rocket::{fairing::AdHoc, response::Redirect};
+use serde::Serialize;
 
 embed_migrations!();
 
@@ -56,6 +58,21 @@ fn index(conn: DbConn) -> Option<Redirect> {
         .first::<Link>(&*conn)
         .map(|x| Redirect::temporary(x.url))
         .ok()
+}
+
+#[get("/links")]
+fn links(conn: DbConn) -> Template {
+    #[derive(Serialize)]
+    struct LinksContext {
+        links: Vec<Link>,
+    }
+
+    let links: Vec<Link> = links::table
+        .filter(links::public.eq(true))
+        .load(&*conn)
+        .unwrap();
+
+    Template::render("index", &LinksContext { links })
 }
 
 #[catch(404)]
@@ -101,9 +118,11 @@ fn main() -> Result<(), String> {
             routes![
                 index,
                 link,
+                links,
                 api::add_link,
                 api::delete_link,
                 api::get_links,
+                api::update_link,
                 migrate::migrate
             ],
         )
@@ -111,6 +130,7 @@ fn main() -> Result<(), String> {
         .attach(Attribution)
         .attach(DbConn::fairing())
         .attach(AdHoc::on_attach("Database migrations", run_db_migrations))
+        .attach(Template::fairing())
         .launch();
 
     Ok(())

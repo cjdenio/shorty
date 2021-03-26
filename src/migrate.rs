@@ -54,6 +54,7 @@ pub fn migrate(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<String>> {
             name: String::from(link_name),
             url: link.url,
             public: link.public.unwrap_or(false),
+            description: None,
         });
     }
 

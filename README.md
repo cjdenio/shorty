@@ -21,9 +21,15 @@ In addition to being easy to build from source (`cargo build --release`), shorty
 - `TOKEN` - your desired API token; only required if you're using the API (described below).
 - `PORT` - Change the port the server listens on; defaults to `8000`
 
+## 👀 Public links page
+
+There's a page available at /links that displays all links with the `public` field set to `true`.
+
+Check out [clb.li/links](https://clb.li/links) for an example!
+
 ## 📡 API
 
-You can use shorty's API to add/remove links. No UI is available quite yet, but soon!
+You can use shorty's API to add/remove links. No UI is available quite yet, but will be soon!
 
 ### Authentication
 
@@ -59,16 +65,28 @@ This method has no options.
 
 ---
 
-### ➕ `POST /api/link` - create or update a named link
+### ➕ `POST /api/link` - create a named link
 
 Options:
 
 - `url` (string, **required**) - The URL the redirect to.
 - `name` (string, optional) - The link's name. Leave blank to randomly generate a 10-character ID.
-- `public` (bool, optional) - Whether or not to display this link on the public links page; **coming soon**
+- `public` (bool, optional) - Whether or not to display this link on the public links page.
+- `description` (string, optional) - This field is displayed on the public links page (if `public` is set to `true`)
 
 ℹ️ Note:
 **`/` is a special value for `<name>` that creates a redirect for the root URL.**
+
+---
+
+### 📝 `PATCH /api/link/<name>` - update a named link
+
+Options:
+
+This method takes the same parameters as `POST /api/link`, except they're all optional.
+
+ℹ️ Note:
+**Please URL encode the `<name>` parameter if necessary; `/` will become `%2F`**
 
 ---
 
@@ -83,5 +101,4 @@ example: `curl -X DELETE http://localhost:8000/api/link/gh`
 
 ## 🚗 Roadmap
 
-- UI
-- Redirect code configuration
+Check the [issues page](https://github.com/cjdenio/shorty/issues) for more information on in-progress features!

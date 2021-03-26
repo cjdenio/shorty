@@ -8,6 +8,7 @@ pub struct Link {
     pub name: String,
     pub url: String,
     pub public: bool,
+    pub description: Option<String>,
 }
 
 fn random_name() -> String {
@@ -23,4 +24,14 @@ pub struct NewLink {
 
     #[serde(default)]
     pub public: bool,
+    pub description: Option<String>,
+}
+
+#[derive(Deserialize, Debug, AsChangeset)]
+#[table_name = "links"]
+pub struct UpdatedLink {
+    pub name: Option<String>,
+    pub url: Option<String>,
+    pub public: Option<bool>,
+    pub description: Option<String>,
 }

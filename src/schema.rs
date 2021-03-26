@@ -4,5 +4,6 @@ table! {
         name -> Varchar,
         url -> Varchar,
         public -> Bool,
+        description -> Nullable<Varchar>,
     }
 }

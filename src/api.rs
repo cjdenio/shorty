@@ -1,5 +1,3 @@
-use std::env;
-
 use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 use rocket_contrib::json::Json;
 
@@ -7,7 +5,7 @@ use serde::Serialize;
 
 use crate::{
     auth::ShortyToken,
-    models::{Link, NewLink},
+    models::{Link, NewLink, UpdatedLink},
     DbConn,
 };
 
@@ -76,5 +74,20 @@ pub fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiR
             .execute(&*conn)
             .map(|_| Some(()))
             .map_err(|x| x.to_string()),
+    ))
+}
+
+#[patch("/api/link/<name>", data = "<link>")]
+pub fn update_link(
+    conn: DbConn,
+    name: String,
+    link: Json<UpdatedLink>,
+    _token: ShortyToken,
+) -> Json<ApiResult<Link>> {
+    Json(ApiResult::from_result(
+        diesel::update(links::table.filter(links::name.eq(name)))
+            .set(&link.0)
+            .get_result::<Link>(&*conn)
+            .map(|x| Some(x)),
     ))
 }
