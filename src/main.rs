@@ -42,6 +42,11 @@ embed_migrations!();
 #[database("db")]
 pub struct DbConn(PgConnection);
 
+#[derive(Serialize)]
+struct LinksContext {
+    links: Vec<Link>,
+}
+
 #[get("/<name>")]
 fn link(conn: DbConn, name: String) -> Option<Redirect> {
     links::table
@@ -52,23 +57,29 @@ fn link(conn: DbConn, name: String) -> Option<Redirect> {
 }
 
 #[get("/")]
-fn index(conn: DbConn) -> Option<Redirect> {
+fn index(conn: DbConn) -> Result<Redirect, Template> {
     links::table
         .filter(links::name.eq_any(vec!["/", "root"]))
         .first::<Link>(&*conn)
         .map(|x| Redirect::temporary(x.url))
-        .ok()
+        .map_err(|_| {
+            // Send public links page if no root link
+
+            let links: Vec<Link> = links::table
+                .filter(links::public.eq(true))
+                .order(links::name.asc())
+                .load(&*conn)
+                .unwrap();
+
+            Template::render("links", &LinksContext { links })
+        })
 }
 
 #[get("/links")]
 fn links(conn: DbConn) -> Template {
-    #[derive(Serialize)]
-    struct LinksContext {
-        links: Vec<Link>,
-    }
-
     let links: Vec<Link> = links::table
         .filter(links::public.eq(true))
+        .order(links::name.asc())
         .load(&*conn)
         .unwrap();
 
