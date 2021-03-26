@@ -4,16 +4,16 @@
 
 > ### ⚠️ WARNING ⚠️
 >
-> Redis-backed installations _are not longer supported_. To switch to Postgres, please see the [migration guide](MIGRATION.md).
+> Redis-backed installations _are no longer supported_. To switch to Postgres, please see the [migration guide](MIGRATION.md).
 
 ## 💾 Hosting
 
-In addition to being easy to build from source, shorty is available as a Docker image on [Docker Hub](https://hub.docker.com/r/cjdenio/shorty).
+In addition to being easy to build from source (`cargo build --release`), shorty is available as a Docker image on both [Docker Hub](https://hub.docker.com/r/cjdenio/shorty) and [GitHub Container Registry](https://ghcr.io/cjdenio/shorty).
 
 ### 🏁 Prerequisites
 
 - Some sort of Docker or Rust-compatible hosting. [clb.li](https://clb.li) runs on [CapRover](https://caprover.com), for example, but [Heroku](https://heroku.com) is a good free option.
-- A Postgres database (Heroku Postgres is your friend if your running on Heroku)
+- A Postgres database (Heroku Postgres is your friend if you're running shorty on Heroku)
 
 ### 🌎 Environment variables
 
