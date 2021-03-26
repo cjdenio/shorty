@@ -32,10 +32,14 @@ extern crate diesel_migrations;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 use rocket::{
     config::{Environment, Value},
+    http::Method,
     Config, Rocket,
 };
 use rocket::{fairing::AdHoc, response::Redirect};
 use serde::Serialize;
+
+use rocket_cors::{AllowedHeaders, AllowedOrigins};
+use std::default::Default;
 
 embed_migrations!();
 
@@ -69,6 +73,7 @@ fn links(conn: DbConn) -> Template {
 
     let links: Vec<Link> = links::table
         .filter(links::public.eq(true))
+        .order(links::name.asc())
         .load(&*conn)
         .unwrap();
 
@@ -112,6 +117,17 @@ fn main() -> Result<(), String> {
         .finalize()
         .unwrap();
 
+    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
+    let cors = rocket_cors::CorsOptions {
+        allowed_origins,
+        allowed_methods: vec![Method::Get].into_iter().map(From::from).collect(),
+        allowed_headers: AllowedHeaders::some(&["Authorization", "Accept"]),
+        allow_credentials: true,
+        ..Default::default()
+    }
+    .to_cors()
+    .unwrap();
+
     rocket::custom(config)
         .mount(
             "/",
@@ -127,6 +143,7 @@ fn main() -> Result<(), String> {
             ],
         )
         .register(catchers![not_found])
+        .attach(cors)
         .attach(Attribution)
         .attach(DbConn::fairing())
         .attach(AdHoc::on_attach("Database migrations", run_db_migrations))

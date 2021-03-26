@@ -13,5 +13,6 @@ nanoid = "0.3.0"
 redis = "0.20.0"
 rocket = "0.4.7"
 rocket_contrib = {version = "0.4.7", default-features = false, features = ["diesel_postgres_pool", "json", "tera_templates"]}
+rocket_cors = "0.5.1"
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
