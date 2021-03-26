@@ -16,5 +16,6 @@ WORKDIR /usr/src/app
 RUN apt-get update -y && apt-get install -y libpq5
 
 COPY --from=0 /usr/src/app/target/release/shorty ./app
+COPY --from=0 /usr/src/app/templates ./templates
 
 CMD ["./app"]

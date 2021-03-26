@@ -72,7 +72,7 @@ fn links(conn: DbConn) -> Template {
         .load(&*conn)
         .unwrap();
 
-    Template::render("index", &LinksContext { links })
+    Template::render("links", &LinksContext { links })
 }
 
 #[catch(404)]
