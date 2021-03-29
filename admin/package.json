@@ -4,10 +4,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "format:check": "prettier -c .",
+    "format:fix": "prettier -w ."
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "next",
+    "prettier": "^2.2.1",
     "svelte": "^3.35.0",
     "svelte-preprocess": "^4.6.9",
     "typescript": "^4.2.3",
