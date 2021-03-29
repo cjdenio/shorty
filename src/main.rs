@@ -5,6 +5,7 @@ mod api;
 mod attribution;
 mod auth;
 mod migrate;
+mod util;
 
 mod models;
 mod schema;
@@ -15,6 +16,8 @@ use attribution::Attribution;
 use models::Link;
 use rocket_contrib::templates::Template;
 use schema::*;
+
+use util::Redirect;
 
 // 👽 External create imports
 #[macro_use]
@@ -30,11 +33,11 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
+use rocket::fairing::AdHoc;
 use rocket::{
     config::{Environment, Value},
     Config, Rocket,
 };
-use rocket::{fairing::AdHoc, response::Redirect};
 use serde::Serialize;
 
 embed_migrations!();

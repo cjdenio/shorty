@@ -9,6 +9,8 @@ use crate::{
     DbConn,
 };
 
+use url::Url;
+
 use crate::schema::*;
 
 #[derive(Serialize)]
@@ -60,6 +62,15 @@ pub fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>
 
 #[post("/api/link", data = "<link>")]
 pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<ApiResult<Link>> {
+    // Check if URL is invalid
+    if let Err(_) = Url::parse(&link.url) {
+        return Json(ApiResult {
+            ok: false,
+            err: Some(String::from("Invalid URL")),
+            data: None,
+        });
+    }
+
     let result = diesel::insert_into(links::table)
         .values(&link.0)
         .get_result::<Link>(&*conn);
@@ -84,6 +95,17 @@ pub fn update_link(
     link: Json<UpdatedLink>,
     _token: ShortyToken,
 ) -> Json<ApiResult<Link>> {
+    // Make sure the URL is valid
+    if let Some(x) = &link.url {
+        if let Err(_) = Url::parse(x) {
+            return Json(ApiResult {
+                ok: false,
+                err: Some(String::from("Invalid URL")),
+                data: None,
+            });
+        }
+    }
+
     Json(ApiResult::from_result(
         diesel::update(links::table.filter(links::name.eq(name)))
             .set(&link.0)
