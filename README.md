@@ -27,6 +27,8 @@ There's a page available at /links that displays all links with the `public` fie
 
 Check out [clb.li/links](https://clb.li/links) for an example!
 
+If you _haven't_ set up a redirect for the root URL, it'll show this page as well.
+
 ## 📡 API
 
 You can use shorty's API to add/remove links. No UI is available quite yet, but will be soon!
@@ -75,7 +77,7 @@ Options:
 - `description` (string, optional) - This field is displayed on the public links page (if `public` is set to `true`)
 
 ℹ️ Note:
-**`/` is a special value for `<name>` that creates a redirect for the root URL.**
+**`/` and `root` are special values for `<name>` that create redirects for the root URL. You may use either.**
 
 ---
 

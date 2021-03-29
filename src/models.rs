@@ -12,7 +12,7 @@ pub struct Link {
 }
 
 fn random_name() -> String {
-    nanoid!(10)
+    nanoid!(5)
 }
 
 #[derive(Insertable, Deserialize, Debug)]

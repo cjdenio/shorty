@@ -1513,6 +1513,7 @@ dependencies = [
  "rocket_cors",
  "serde",
  "serde_json",
+ "url 2.2.1",
 ]
 
 [[package]]
