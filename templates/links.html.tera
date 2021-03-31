@@ -24,8 +24,12 @@
                     color: white !important;
                 }
 
+                tr:not(.is-selected):nth-child(even) {
+                    background-color: #0d0d0d !important;
+                }
+
                 a:hover {
-                    color: white;
+                    color: #03a9fc;
                 }
             }
         </style>
