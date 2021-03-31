@@ -29,6 +29,10 @@
                 }
             }
         </style>
+        <script src="https://unpkg.com/darkreader@4.9.27/darkreader.js"></script>
+        <script>
+            DarkReader.disable();
+        </script>
     </head>
     <body>
         <div class="body">
