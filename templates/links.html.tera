@@ -9,7 +9,34 @@
                 max-width: 950px;
                 margin: 30px auto 0;
             }
+
+            @media (prefers-color-scheme: dark) {
+                html {
+                    background-color: black;
+                }
+
+                .title, .table {
+                    color: white;
+                    background-color: black;
+                }
+
+                th {
+                    color: white !important;
+                }
+
+                tr:not(.is-selected):nth-child(even) {
+                    background-color: #0d0d0d !important;
+                }
+
+                a:hover {
+                    color: #03a9fc;
+                }
+            }
         </style>
+        <script src="https://unpkg.com/darkreader@4.9.27/darkreader.js"></script>
+        <script>
+            DarkReader.disable();
+        </script>
     </head>
     <body>
         <div class="body">
