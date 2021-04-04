@@ -113,3 +113,6 @@ pub fn update_link(
             .map(|x| Some(x)),
     ))
 }
+
+#[get("/api/test_auth")]
+pub fn test_auth(_token: ShortyToken) -> () {}

@@ -155,6 +155,7 @@ fn main() -> Result<(), String> {
                 api::delete_link,
                 api::get_links,
                 api::update_link,
+                api::test_auth,
                 migrate::migrate
             ],
         )
