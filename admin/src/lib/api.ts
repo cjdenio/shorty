@@ -46,3 +46,5 @@ export const deleteLink = buildRequest<{}, { name: string }>(
   ({ name }) => `http://localhost:8000/api/link/${encodeURIComponent(name)}`,
   "DELETE"
 );
+
+export const testAuth = async (): Promise<boolean> => {};
