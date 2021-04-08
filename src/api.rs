@@ -53,14 +53,14 @@ impl<T: Serialize> ApiResult<T> {
     }
 }
 
-#[get("/api/link")]
+#[get("/link")]
 pub fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>> {
     Json(ApiResult::from_result(
         links::table.load::<Link>(&*conn).map(|x| Some(x)),
     ))
 }
 
-#[post("/api/link", data = "<link>")]
+#[post("/link", data = "<link>")]
 pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<ApiResult<Link>> {
     // Check if URL is invalid
     if let Err(_) = Url::parse(&link.url) {
@@ -78,7 +78,7 @@ pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<
     Json(ApiResult::from_result(result.map(|x| Some(x))))
 }
 
-#[delete("/api/link/<name>")]
+#[delete("/link/<name>")]
 pub fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiResult<()>> {
     Json(ApiResult::from_result(
         diesel::delete(links::table.filter(links::name.eq(name)))
@@ -88,7 +88,7 @@ pub fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiR
     ))
 }
 
-#[patch("/api/link/<name>", data = "<link>")]
+#[patch("/link/<name>", data = "<link>")]
 pub fn update_link(
     conn: DbConn,
     name: String,
@@ -114,5 +114,5 @@ pub fn update_link(
     ))
 }
 
-#[get("/api/test_auth")]
+#[get("/test_auth")]
 pub fn test_auth(_token: ShortyToken) -> () {}

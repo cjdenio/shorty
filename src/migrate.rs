@@ -16,7 +16,7 @@ struct RedisLink {
     public: Option<bool>,
 }
 
-#[get("/api/migrate")]
+#[get("/migrate")]
 pub fn migrate(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<String>> {
     let redis_url = match env::var("REDIS_URL") {
         Ok(x) => x,

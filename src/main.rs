@@ -1,6 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 // 🏡 Local module imports
+mod admin;
 mod api;
 mod attribution;
 mod auth;
@@ -145,12 +146,10 @@ fn main() -> Result<(), String> {
     .unwrap();
 
     rocket::custom(config)
+        .mount("/", routes![index, link, links])
         .mount(
-            "/",
+            "/api",
             routes![
-                index,
-                link,
-                links,
                 api::add_link,
                 api::delete_link,
                 api::get_links,
@@ -159,6 +158,7 @@ fn main() -> Result<(), String> {
                 migrate::migrate
             ],
         )
+        .mount("/admin", routes![admin::admin_index])
         .register(catchers![not_found])
         .attach(cors)
         .attach(Attribution)
