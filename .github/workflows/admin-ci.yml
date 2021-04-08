@@ -1,5 +1,5 @@
 on: push
-name: Admin CI
+name: Admin
 jobs:
   build:
     name: Build
