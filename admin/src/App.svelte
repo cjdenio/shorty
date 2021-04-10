@@ -1,10 +1,10 @@
-<script>
-  import Router from "svelte-spa-router";
+<script lang="ts">
+  import Router, { RouteDefinition } from "svelte-spa-router";
   import Login from "./pages/Login.svelte";
 
   import Main from "./pages/Main.svelte";
 
-  const routes = {
+  const routes: RouteDefinition = {
     "/": Main,
     "/login": Login,
   };
