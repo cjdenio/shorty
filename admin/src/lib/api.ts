@@ -47,4 +47,4 @@ export const deleteLink = buildRequest<{}, { name: string }>(
   "DELETE"
 );
 
-export const testAuth = async (): Promise<boolean> => {};
+// export const testAuth = async (): Promise<boolean> => {};

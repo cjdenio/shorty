@@ -131,7 +131,7 @@ fn main() -> Result<(), String> {
         .finalize()
         .unwrap();
 
-    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
+    let allowed_origins: AllowedOrigins = AllowedOrigins::All;
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Delete]
@@ -158,7 +158,7 @@ fn main() -> Result<(), String> {
                 migrate::migrate
             ],
         )
-        .mount("/admin", routes![admin::admin_index])
+        .mount("/admin", routes![admin::admin_index, admin::admin_asset])
         .register(catchers![not_found])
         .attach(cors)
         .attach(Attribution)
