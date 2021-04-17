@@ -145,7 +145,7 @@ fn main() -> Result<(), String> {
     .to_cors()
     .unwrap();
 
-    rocket::custom(config)
+    let mut app = rocket::custom(config)
         .mount("/", routes![index, link, links])
         .mount(
             "/api",
@@ -160,12 +160,19 @@ fn main() -> Result<(), String> {
         )
         .mount("/admin", routes![admin::admin_index, admin::admin_asset])
         .register(catchers![not_found])
-        .attach(cors)
         .attach(Attribution)
         .attach(DbConn::fairing())
         .attach(AdHoc::on_attach("Database migrations", run_db_migrations))
-        .attach(Template::fairing())
-        .launch();
+        .attach(Template::fairing());
+
+    if Environment::active()
+        .unwrap_or(Environment::Development)
+        .is_dev()
+    {
+        app = app.attach(cors);
+    }
+
+    app.launch();
 
     Ok(())
 }

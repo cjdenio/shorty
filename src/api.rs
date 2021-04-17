@@ -16,6 +16,7 @@ use crate::schema::*;
 #[derive(Serialize)]
 pub struct ApiResult<T: Serialize> {
     pub ok: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub err: Option<String>,
     pub data: Option<T>,
 }

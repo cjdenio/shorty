@@ -2,7 +2,6 @@
   import { createEventDispatcher } from "svelte";
 
   export let active: boolean;
-  export let content: string;
   export let title: string;
   export let style: "primary" | "danger";
   export let text: string;
@@ -26,7 +25,7 @@
       />
     </header>
     <section class="modal-card-body">
-      {content}
+      <slot />
     </section>
     <footer class="modal-card-foot">
       <button
@@ -47,6 +46,6 @@
   }
 
   .modal-background:active + .modal-card {
-    transform: scale(1.03);
+    transform: scale(1.02);
   }
 </style>

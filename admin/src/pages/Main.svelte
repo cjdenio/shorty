@@ -22,12 +22,21 @@
   });
 
   let links: Link[] = [];
-  let deleteModal: {
+
+  interface ModalState<T> {
     active: boolean;
-    link: string;
-  } = {
+    content?: T;
+  }
+
+  let deleteModal: ModalState<{ link: string }> = {
     active: false,
-    link: "",
+    content: {
+      link: "",
+    },
+  };
+
+  let newModal: ModalState<void> = {
+    active: false,
   };
 
   onMount(async () => {
@@ -35,7 +44,7 @@
   });
 
   function deleteLinkHandler(name: string) {
-    deleteModal.link = name;
+    deleteModal.content.link = name;
     deleteModal.active = true;
   }
 
@@ -50,11 +59,21 @@
   <Modal
     bind:active={deleteModal.active}
     title="Delete?"
-    content={`Are you sure you want to delete the link ${deleteModal.link}?`}
     style="danger"
     text="Delete"
-    on:submit={() => deleteLinkConfirm(deleteModal.link)}
-  />
+    on:submit={() => deleteLinkConfirm(deleteModal.content.link)}
+  >
+    Are you sure you want to delete the link {deleteModal.content.link}?
+  </Modal>
+
+  <Modal
+    bind:active={newModal.active}
+    title="New Link"
+    style="primary"
+    text="Create"
+  >
+    test
+  </Modal>
 
   <div class="container">
     <div class="level">
@@ -65,7 +84,10 @@
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button class="button is-primary">
+          <button
+            class="button is-primary"
+            on:click={() => (newModal.active = true)}
+          >
             <span class="icon">
               <Icon icon={faPlus} />
             </span>

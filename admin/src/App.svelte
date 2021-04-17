@@ -1,5 +1,7 @@
 <script lang="ts">
-  import Router, { RouteDefinition } from "svelte-spa-router";
+  import Router from "svelte-spa-router";
+  import type { RouteDefinition } from "svelte-spa-router";
+
   import Login from "./pages/Login.svelte";
 
   import Main from "./pages/Main.svelte";
