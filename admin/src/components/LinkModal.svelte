@@ -54,9 +54,16 @@
     </div>
 
     <div class="field">
-      <input id="root" type="checkbox" class="switch" bind:checked={root} />
+      <input
+        id="root"
+        type="checkbox"
+        class="switch is-rounded"
+        bind:checked={root}
+      />
       <label for="root">Root URL</label>
-      <p class="help">Creates a redirect for the root URL</p>
+      <span class="help" style="display: inline-block; margin-left: 10px"
+        >Creates a redirect for the root URL</span
+      >
     </div>
 
     <div class="field">
@@ -90,7 +97,7 @@
       <input
         id="public"
         type="checkbox"
-        class="switch"
+        class="switch is-rounded"
         bind:checked={publicLink}
       />
       <label for="public">Public</label>
