@@ -1,4 +1,5 @@
 import "bulma/css/bulma.min.css";
+import "bulma-extensions/dist/css/bulma-extensions.min.css";
 
 import App from "./App.svelte";
 

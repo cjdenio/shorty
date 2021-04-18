@@ -20,6 +20,7 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.15.3",
     "bulma": "^0.9.2",
+    "bulma-extensions": "^6.2.7",
     "svelte-fa": "^2.2.0",
     "svelte-spa-router": "^3.1.0"
   }

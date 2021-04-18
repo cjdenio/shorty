@@ -5,7 +5,7 @@
     faPlus,
     faEdit,
   } from "@fortawesome/free-solid-svg-icons";
-  import Modal from "../lib/Modal.svelte";
+  import Modal from "../components/Modal.svelte";
 
   import { deleteLink, getLinks } from "../lib/api";
   import type { Link } from "../lib/api";
@@ -13,6 +13,7 @@
 
   import { token } from "../lib/stores";
   import { push } from "svelte-spa-router";
+  import LinkModal from "../components/LinkModal.svelte";
 
   token.subscribe(async (i) => {
     console.log("yay");
@@ -35,9 +36,7 @@
     },
   };
 
-  let newModal: ModalState<void> = {
-    active: false,
-  };
+  let newModalActive = false;
 
   onMount(async () => {
     links = await getLinks({});
@@ -66,14 +65,7 @@
     Are you sure you want to delete the link {deleteModal.content.link}?
   </Modal>
 
-  <Modal
-    bind:active={newModal.active}
-    title="New Link"
-    style="primary"
-    text="Create"
-  >
-    test
-  </Modal>
+  <LinkModal bind:active={newModalActive} />
 
   <div class="container">
     <div class="level">
@@ -86,7 +78,7 @@
         <div class="level-item">
           <button
             class="button is-primary"
-            on:click={() => (newModal.active = true)}
+            on:click={() => (newModalActive = true)}
           >
             <span class="icon">
               <Icon icon={faPlus} />

@@ -11,6 +11,11 @@
   function submit() {
     dispatch("submit");
   }
+
+  function close() {
+    dispatch("close");
+    active = false;
+  }
 </script>
 
 <div class="modal" class:is-active={active}>
@@ -18,11 +23,7 @@
   <div class="modal-card">
     <header class="modal-card-head">
       <p class="modal-card-title">{title}</p>
-      <button
-        class="delete"
-        aria-label="close"
-        on:click={() => (active = false)}
-      />
+      <button class="delete" aria-label="close" on:click={() => close()} />
     </header>
     <section class="modal-card-body">
       <slot />
@@ -32,10 +33,10 @@
         class={`button is-${style}`}
         on:click={() => {
           submit();
-          active = false;
+          close();
         }}>{text}</button
       >
-      <button class="button" on:click={() => (active = false)}>Cancel</button>
+      <button class="button" on:click={() => close()}>Cancel</button>
     </footer>
   </div>
 </div>
