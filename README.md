@@ -2,7 +2,7 @@
 
 🔗 High-performance link shortener written in Rust
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/cjdenio/shorty)
 
 > ### ⚠️ WARNING ⚠️
 >

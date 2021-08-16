@@ -11,7 +11,7 @@
   },
   "buildpacks": [
     {
-      "url": "emk/heroku-buildpack-rust"
+      "url": "emk/rust"
     }
   ]
 }
