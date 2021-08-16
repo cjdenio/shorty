@@ -1,0 +1,6 @@
+{
+  "name": "shorty",
+  "description": "A high-performance, self-hosted link shortener",
+  "repository": "https://github.com/cjdenio/shorty",
+  "addons": ["heroku-postgresql"]
+}
