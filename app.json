@@ -2,5 +2,11 @@
   "name": "shorty",
   "description": "A high-performance, self-hosted link shortener",
   "repository": "https://github.com/cjdenio/shorty",
-  "addons": ["heroku-postgresql"]
+  "addons": ["heroku-postgresql"],
+  "env": {
+    "TOKEN": {
+      "description": "Your instance's API token",
+      "generator": "secret"
+    }
+  }
 }

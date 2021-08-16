@@ -9,10 +9,18 @@ version = "0.1.0"
 [dependencies]
 diesel = {version = "1.4.6", features = ["postgres"]}
 diesel_migrations = "1.4.0"
-nanoid = "0.3.0"
-redis = "0.20.0"
-rocket = "0.4.7"
-rocket_contrib = {version = "0.4.7", default-features = false, features = ["diesel_postgres_pool", "json", "tera_templates"]}
+
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
+
+rocket = {version = "0.5.0-rc.1", features = ["json"]}
+rocket_dyn_templates = {version = "0.1.0-rc.1", features = ["tera"]}
+
+nanoid = "0.3.0"
+redis = "0.20.0"
 url = "2.2.1"
+
+[dependencies.rocket_sync_db_pools]
+default-features = false
+features = ["diesel_postgres_pool"]
+version = "0.1.0-rc.1"

@@ -2,6 +2,8 @@
 
 🔗 High-performance link shortener written in Rust
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 > ### ⚠️ WARNING ⚠️
 >
 > Redis-backed installations _are no longer supported_. To switch to Postgres, please see the [migration guide](MIGRATION.md).

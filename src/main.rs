@@ -1,30 +1,20 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
 // 🏡 Local module imports
 mod api;
-mod attribution;
 mod auth;
 mod migrate;
-mod util;
 
 mod models;
 mod schema;
 
 use std::{collections::HashMap, env};
 
-use attribution::Attribution;
 use models::Link;
-use rocket_contrib::templates::Template;
-use schema::*;
-
-use util::Redirect;
+use rocket::response::Redirect;
+use rocket_dyn_templates::Template;
 
 // 👽 External create imports
 #[macro_use]
 extern crate rocket;
-
-#[macro_use]
-extern crate rocket_contrib;
 
 #[macro_use]
 extern crate diesel;
@@ -32,12 +22,10 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
+use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 use rocket::fairing::AdHoc;
-use rocket::{
-    config::{Environment, Value},
-    Config, Rocket,
-};
+use rocket::{Build, Config, Rocket};
+use rocket_sync_db_pools::{database, diesel::PgConnection};
 use serde::Serialize;
 
 embed_migrations!();
@@ -51,42 +39,67 @@ struct LinksContext {
 }
 
 #[get("/<name>")]
-fn link(conn: DbConn, name: String) -> Option<Redirect> {
-    links::table
-        .filter(links::name.eq(name))
-        .first::<Link>(&*conn)
-        .map(|x| Redirect::temporary(x.url))
-        .ok()
+async fn link(conn: DbConn, name: String) -> Option<Redirect> {
+    conn.run(|c| {
+        use schema::links::dsl as links;
+
+        links::links
+            .filter(links::name.eq(name))
+            .first::<Link>(c)
+            .map(|x| Redirect::temporary(x.url))
+            .ok()
+    })
+    .await
 }
 
 #[get("/")]
-fn index(conn: DbConn) -> Result<Redirect, Template> {
-    links::table
-        .filter(links::name.eq_any(vec!["/", "root"]))
-        .first::<Link>(&*conn)
-        .map(|x| Redirect::temporary(x.url))
-        .map_err(|_| {
-            // Send public links page if no root link
+async fn index(conn: DbConn) -> Result<Redirect, Template> {
+    conn.run(|c| {
+        use schema::links::dsl::*;
 
-            let links: Vec<Link> = links::table
-                .filter(links::public.eq(true))
-                .order(links::name.asc())
-                .load(&*conn)
-                .unwrap();
+        links
+            .filter(name.eq_any(vec!["/", "root"]))
+            .first::<Link>(c)
+            .map(|x| Redirect::temporary(x.url))
+            .map_err(|_| {
+                // Send public links page if no root link
 
-            Template::render("links", &LinksContext { links })
-        })
+                let fetched_links: Vec<Link> = links
+                    .filter(public.eq(true))
+                    .order(name.asc())
+                    .load(c)
+                    .unwrap();
+
+                Template::render(
+                    "links",
+                    &LinksContext {
+                        links: fetched_links,
+                    },
+                )
+            })
+    })
+    .await
 }
 
 #[get("/links")]
-fn links(conn: DbConn) -> Template {
-    let links: Vec<Link> = links::table
-        .filter(links::public.eq(true))
-        .order(links::name.asc())
-        .load(&*conn)
-        .unwrap();
+async fn links(conn: DbConn) -> Template {
+    conn.run(|c| {
+        use schema::links::dsl::*;
 
-    Template::render("links", &LinksContext { links })
+        let fetched_links: Vec<Link> = links
+            .filter(public.eq(true))
+            .order(name.asc())
+            .load(c)
+            .unwrap();
+
+        Template::render(
+            "links",
+            &LinksContext {
+                links: fetched_links,
+            },
+        )
+    })
+    .await
 }
 
 #[catch(404)]
@@ -94,16 +107,18 @@ fn not_found() -> String {
     String::from("404 not found")
 }
 
-fn run_db_migrations(rocket: Rocket) -> Result<Rocket, Rocket> {
-    let conn = DbConn::get_one(&rocket).expect("database connection");
+async fn run_db_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
+    let conn = DbConn::get_one(&rocket).await.expect("database connection");
 
-    match embedded_migrations::run(&*conn) {
-        Ok(_) => Ok(rocket),
-        Err(_) => Err(rocket),
-    }
+    conn.run(|c| match embedded_migrations::run(c) {
+        Ok(_) => rocket,
+        Err(_) => rocket,
+    })
+    .await
 }
 
-fn main() -> Result<(), String> {
+#[launch]
+fn launch() -> _ {
     let mut database_config = HashMap::new();
     let mut databases = HashMap::new();
 
@@ -116,15 +131,20 @@ fn main() -> Result<(), String> {
         .and_then(|x| x.parse().ok())
         .unwrap_or(8000);
 
-    database_config.insert("url", Value::from(database_url));
-    databases.insert("db", Value::from(database_config));
+    database_config.insert("url", database_url);
+    databases.insert("db", database_config);
 
-    let config = Config::build(Environment::active().unwrap_or(Environment::Development))
-        .port(port)
-        .address("0.0.0.0")
-        .extra("databases", databases)
-        .finalize()
-        .unwrap();
+    // let config = Config::build(Environment::active().unwrap_or(Environment::Development))
+    //     .port(port)
+    //     .address("0.0.0.0")
+    //     .extra("databases", databases)
+    //     .finalize()
+    //     .unwrap();
+
+    let config = Config::figment()
+        .merge(("port", port))
+        .merge(("address", "0.0.0.0"))
+        .merge(("databases", databases));
 
     rocket::custom(config)
         .mount(
@@ -140,12 +160,8 @@ fn main() -> Result<(), String> {
                 migrate::migrate
             ],
         )
-        .register(catchers![not_found])
-        .attach(Attribution)
+        .register("/", catchers![not_found])
         .attach(DbConn::fairing())
-        .attach(AdHoc::on_attach("Database migrations", run_db_migrations))
+        .attach(AdHoc::on_ignite("Database migrations", run_db_migrations))
         .attach(Template::fairing())
-        .launch();
-
-    Ok(())
 }

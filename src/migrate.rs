@@ -4,7 +4,7 @@ use crate::models::NewLink;
 use crate::DbConn;
 use diesel::RunQueryDsl;
 use redis::Commands;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 use serde::Deserialize;
 use std::env;
 
@@ -17,7 +17,7 @@ struct RedisLink {
 }
 
 #[get("/api/migrate")]
-pub fn migrate(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<String>> {
+pub async fn migrate(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<String>> {
     let redis_url = match env::var("REDIS_URL") {
         Ok(x) => x,
         Err(_) => {
@@ -59,17 +59,21 @@ pub fn migrate(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<String>> {
     }
 
     println!("{:?}", links);
-    diesel::insert_into(links::table)
-        .values(&links)
-        .execute(&*conn)
-        .unwrap();
 
-    Json(ApiResult {
-        ok: true,
-        err: None,
-        data: Some(format!(
-            "Successfully migrated {} links from Redis to Postgres!",
-            links.len()
-        )),
+    conn.run(move |c| {
+        diesel::insert_into(links::table)
+            .values(&links)
+            .execute(c)
+            .unwrap();
+
+        Json(ApiResult {
+            ok: true,
+            err: None,
+            data: Some(format!(
+                "Successfully migrated {} links from Redis to Postgres!",
+                links.len()
+            )),
+        })
     })
+    .await
 }

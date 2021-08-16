@@ -6,10 +6,11 @@ use std::env;
 
 pub struct ShortyToken(String);
 
-impl<'a, 'r> FromRequest<'a, 'r> for ShortyToken {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for ShortyToken {
     type Error = String;
 
-    fn from_request(req: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+    async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let auth_header = match req.headers().get_one("Authorization") {
             Some(x) => x,
             None => {

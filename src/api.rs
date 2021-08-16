@@ -1,5 +1,5 @@
 use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
 use serde::Serialize;
 
@@ -54,14 +54,23 @@ impl<T: Serialize> ApiResult<T> {
 }
 
 #[get("/api/link")]
-pub fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>> {
-    Json(ApiResult::from_result(
-        links::table.load::<Link>(&*conn).map(|x| Some(x)),
-    ))
+pub async fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<Link>>> {
+    conn.run(|c| {
+        use crate::schema::links::dsl::*;
+
+        Json(ApiResult::from_result(
+            links.load::<Link>(c).map(|x| Some(x)),
+        ))
+    })
+    .await
 }
 
 #[post("/api/link", data = "<link>")]
-pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<ApiResult<Link>> {
+pub async fn add_link(
+    conn: DbConn,
+    _token: ShortyToken,
+    link: Json<NewLink>,
+) -> Json<ApiResult<Link>> {
     // Check if URL is invalid
     if let Err(_) = Url::parse(&link.url) {
         return Json(ApiResult {
@@ -71,25 +80,31 @@ pub fn add_link(conn: DbConn, _token: ShortyToken, link: Json<NewLink>) -> Json<
         });
     }
 
-    let result = diesel::insert_into(links::table)
-        .values(&link.0)
-        .get_result::<Link>(&*conn);
+    conn.run(move |c| {
+        let result = diesel::insert_into(links::table)
+            .values(&link.0)
+            .get_result::<Link>(c);
 
-    Json(ApiResult::from_result(result.map(|x| Some(x))))
+        Json(ApiResult::from_result(result.map(|x| Some(x))))
+    })
+    .await
 }
 
 #[delete("/api/link/<name>")]
-pub fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiResult<()>> {
-    Json(ApiResult::from_result(
-        diesel::delete(links::table.filter(links::name.eq(name)))
-            .execute(&*conn)
-            .map(|_| Some(()))
-            .map_err(|x| x.to_string()),
-    ))
+pub async fn delete_link(conn: DbConn, _token: ShortyToken, name: String) -> Json<ApiResult<()>> {
+    conn.run(|c| {
+        Json(ApiResult::from_result(
+            diesel::delete(links::table.filter(links::name.eq(name)))
+                .execute(c)
+                .map(|_| Some(()))
+                .map_err(|x| x.to_string()),
+        ))
+    })
+    .await
 }
 
 #[patch("/api/link/<name>", data = "<link>")]
-pub fn update_link(
+pub async fn update_link(
     conn: DbConn,
     name: String,
     link: Json<UpdatedLink>,
@@ -106,10 +121,13 @@ pub fn update_link(
         }
     }
 
-    Json(ApiResult::from_result(
-        diesel::update(links::table.filter(links::name.eq(name)))
-            .set(&link.0)
-            .get_result::<Link>(&*conn)
-            .map(|x| Some(x)),
-    ))
+    conn.run(move |c| {
+        Json(ApiResult::from_result(
+            diesel::update(links::table.filter(links::name.eq(name)))
+                .set(&link.0)
+                .get_result::<Link>(c)
+                .map(|x| Some(x)),
+        ))
+    })
+    .await
 }
