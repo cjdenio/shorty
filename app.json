@@ -8,5 +8,10 @@
       "description": "Your instance's API token",
       "generator": "secret"
     }
-  }
+  },
+  "buildpacks": [
+    {
+      "url": "emk/heroku-buildpack-rust"
+    }
+  ]
 }
