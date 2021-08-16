@@ -9,6 +9,7 @@ mod schema;
 use std::{collections::HashMap, env};
 
 use models::Link;
+use rocket::figment::value::Value;
 use rocket::response::Redirect;
 use rocket_dyn_templates::Template;
 
@@ -131,7 +132,8 @@ fn launch() -> _ {
         .and_then(|x| x.parse().ok())
         .unwrap_or(8000);
 
-    database_config.insert("url", database_url);
+    database_config.insert("url", Value::from(database_url));
+    database_config.insert("pool_size", Value::from(1));
     databases.insert("db", database_config);
 
     // let config = Config::build(Environment::active().unwrap_or(Environment::Development))
