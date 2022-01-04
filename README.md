@@ -74,7 +74,7 @@ This method has no options.
 Options:
 
 - `url` (string, **required**) - The URL the redirect to.
-- `name` (string, optional) - The link's name. Leave blank to randomly generate a 10-character ID.
+- `name` (string, optional) - The link's name. Leave blank to randomly generate a 5-character ID.
 - `public` (bool, optional) - Whether or not to display this link on the public links page.
 - `description` (string, optional) - This field is displayed on the public links page (if `public` is set to `true`)
 
