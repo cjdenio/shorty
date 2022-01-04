@@ -5,7 +5,7 @@ use serde::Serialize;
 
 use crate::{
     auth::ShortyToken,
-    models::{Link, NewLink, UpdatedLink},
+    models::{ApiNewLink, Link, UpdatedLink},
     DbConn,
 };
 
@@ -69,10 +69,10 @@ pub async fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<
 pub async fn add_link(
     conn: DbConn,
     _token: ShortyToken,
-    link: Json<NewLink>,
+    link: Json<ApiNewLink>,
 ) -> Json<ApiResult<Link>> {
     // Check if URL is invalid
-    if let Err(_) = Url::parse(&link.url) {
+    if Url::parse(&link.url).is_err() {
         return Json(ApiResult {
             ok: false,
             err: Some(String::from("Invalid URL")),
@@ -80,12 +80,14 @@ pub async fn add_link(
         });
     }
 
+    let new_link = link.0.to_new_link();
+
     conn.run(move |c| {
         let result = diesel::insert_into(links::table)
-            .values(&link.0)
+            .values(&new_link)
             .get_result::<Link>(c);
 
-        Json(ApiResult::from_result(result.map(|x| Some(x))))
+        Json(ApiResult::from_result(result.map(Some)))
     })
     .await
 }

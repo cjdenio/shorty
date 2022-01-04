@@ -15,14 +15,33 @@ fn random_name() -> String {
     nanoid!(5)
 }
 
+#[derive(Deserialize, Clone)]
+pub struct ApiNewLink {
+    pub name: Option<String>,
+    pub url: String,
+    pub public: Option<bool>,
+    pub description: Option<String>,
+}
+
+impl ApiNewLink {
+    pub fn to_new_link(self) -> NewLink {
+        NewLink {
+            name: match self.name.as_deref() {
+                Some("") | None => random_name(),
+                Some(x) => String::from(x),
+            },
+            description: self.description,
+            public: self.public.unwrap_or(false),
+            url: self.url,
+        }
+    }
+}
+
 #[derive(Insertable, Deserialize, Debug)]
 #[table_name = "links"]
 pub struct NewLink {
-    #[serde(default = "random_name")]
     pub name: String,
     pub url: String,
-
-    #[serde(default)]
     pub public: bool,
     pub description: Option<String>,
 }

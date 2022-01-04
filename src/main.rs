@@ -136,13 +136,6 @@ fn launch() -> _ {
     database_config.insert("pool_size", Value::from(1));
     databases.insert("db", database_config);
 
-    // let config = Config::build(Environment::active().unwrap_or(Environment::Development))
-    //     .port(port)
-    //     .address("0.0.0.0")
-    //     .extra("databases", databases)
-    //     .finalize()
-    //     .unwrap();
-
     let config = Config::figment()
         .merge(("port", port))
         .merge(("address", "0.0.0.0"))
