@@ -58,9 +58,7 @@ pub async fn get_links(conn: DbConn, _token: ShortyToken) -> Json<ApiResult<Vec<
     conn.run(|c| {
         use crate::schema::links::dsl::*;
 
-        Json(ApiResult::from_result(
-            links.load::<Link>(c).map(|x| Some(x)),
-        ))
+        Json(ApiResult::from_result(links.load::<Link>(c).map(Some)))
     })
     .await
 }
@@ -114,7 +112,7 @@ pub async fn update_link(
 ) -> Json<ApiResult<Link>> {
     // Make sure the URL is valid
     if let Some(x) = &link.url {
-        if let Err(_) = Url::parse(x) {
+        if Url::parse(x).is_err() {
             return Json(ApiResult {
                 ok: false,
                 err: Some(String::from("Invalid URL")),
@@ -123,12 +121,21 @@ pub async fn update_link(
         }
     }
 
+    let link_name = if link.name == Some(String::from("")) {
+        None
+    } else {
+        link.name.clone()
+    };
+
     conn.run(move |c| {
         Json(ApiResult::from_result(
             diesel::update(links::table.filter(links::name.eq(name)))
-                .set(&link.0)
+                .set(&UpdatedLink {
+                    name: link_name,
+                    ..link.0
+                })
                 .get_result::<Link>(c)
-                .map(|x| Some(x)),
+                .map(Some),
         ))
     })
     .await
