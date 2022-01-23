@@ -13,7 +13,7 @@ use rocket::figment::value::Value;
 use rocket::response::Redirect;
 use rocket_dyn_templates::Template;
 
-// 👽 External create imports
+// 👽 External crate imports
 #[macro_use]
 extern crate rocket;
 
