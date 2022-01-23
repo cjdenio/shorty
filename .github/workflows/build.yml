@@ -9,8 +9,5 @@ jobs:
         name: Checkout repository
       - name: Install Rust nightly
         uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
       - run: cargo build
         name: Build
