@@ -9,5 +9,7 @@ jobs:
         name: Checkout repository
       - name: Install Rust nightly
         uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - run: cargo build
         name: Build
