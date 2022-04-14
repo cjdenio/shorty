@@ -25,11 +25,16 @@ impl<'r> FromRequest<'r> for ShortyToken {
             }
         };
 
-        let actual_token = match env::var("TOKEN") {
-            Ok(x) => x,
-            Err(_) => {
-                return Outcome::Failure((Status::Unauthorized, String::from("Invalid API token.")))
+        let actual_token  = if let Ok(token) = env::var("TOKEN") {
+            token
+        } else if let Ok(token_file) = env::var("TOKEN_FILE") {
+            let read_result = std::fs::read_to_string(token_file);
+            if read_result.is_err() {
+                return Outcome::Failure((Status::Unauthorized, String::from("Invalid API token.")));
             }
+            read_result.expect("")
+        } else {
+                return Outcome::Failure((Status::Unauthorized, String::from("Invalid API token.")));
         };
 
         if provided_token != actual_token {
