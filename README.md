@@ -4,10 +4,6 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/cjdenio/shorty)
 
-> ### ⚠️ WARNING ⚠️
->
-> Redis-backed installations _are no longer supported_. To switch to Postgres, please see the [migration guide](MIGRATION.md).
-
 ## 💾 Hosting
 
 In addition to being easy to build from source (`cargo build --release`), shorty is available as a Docker image on both [Docker Hub](https://hub.docker.com/r/cjdenio/shorty) and [GitHub Container Registry](https://ghcr.io/cjdenio/shorty).
